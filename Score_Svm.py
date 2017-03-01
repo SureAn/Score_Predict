@@ -1,50 +1,30 @@
 print(__doc__)
 
 import matplotlib.pyplot as plt
-import numpy as np
-from sklearn import preprocessing,metrics
-from sklearn.svm import SVC
-import csv
-#from sklearn.linear_model import SGDClassifier
+from Load_Data import *
+from Data_Preprocess import *
+from Train_algo import *
+from Predict_Data import *
+from Test_Analysis import *
 
-
-#trainXreader = csv.reader(open("train_data_X.csv"))
-trainXreader = np.loadtxt(open("train_data_X.csv","rb"),delimiter=",",skiprows=0)
-X = trainXreader[:,1:8]
-
-trainYreader = np.loadtxt(open("train_data_Y.csv","rb"),delimiter=",",skiprows=0)
-y = trainYreader[:,1]
-
-# normalize the data attributes
-#normalized_X = preprocessing.normalize(X)
-# standardize the data attributes
-#standardized_X = preprocessing.scale(X)
-
-model = SVC(C=30,class_weight={0:7},gamma=0.03)
-model.fit(X, y)
-print(model)
-trainY1reader = np.loadtxt(open("test_data_Y.csv","rb"),delimiter=",",skiprows=0)
-y1 = trainY1reader[:,1]
-expected = y1
-trainX1reader = np.loadtxt(open("test_data_X.csv","rb"),delimiter=",",skiprows=0)
-X1 = trainX1reader[:,1:8]
-predicted = model.predict(X1)
-print(predicted)
-np.savetxt('predict.csv', predicted, delimiter = ',')
-#计算整体准确率
-accuracy = metrics.accuracy_score(y1, predicted)
-print('accuracy: %.2f%%' % (100 * accuracy))
-
-#计算“0”样本的准确率
-count_y=0
-count_P=0
-for j in range(1,298):
-    if y1[j]==0:
-        count_y+=1
-        if predicted[j]==0:
-            count_P+=1
-accuracy_really = count_P/count_y
-print('accuracy_really: %.2f%%' % (100 * accuracy_really))
+#load train data
+X = load_data("train_data_X.csv")
+y = load_data("train_data_Y.csv")
+#train data preprocess
+#X = data_preprocess(X)
+#y = data_preprocess(y)
+#fit support vector machine,return model
+model = train_svm(X,y,30,0.01)
+#load text data
+y1 = load_data("test_data_Y.csv")
+X1 = load_data("test_data_X.csv")
+#test data preprocess
+#X1 = data_preprocess(X)
+#y1 = data_preprocess(y)
+#test data predict
+predicted = predict_data(model,X1)
+#analysis
+test_analysis(predicted,y1)
 #lw = 2
 #plt.scatter(X1, y1, color='darkorange', label='data')
 #plt.hold('on')
